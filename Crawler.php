@@ -125,6 +125,7 @@ class Crawler extends \SplObjectStorage
         $dom = new \DOMDocument('1.0', $charset);
         $dom->validateOnParse = true;
 
+	libxml_use_internal_errors(true);
         @$dom->loadHTML($content);
         $this->addDocument($dom);
 
