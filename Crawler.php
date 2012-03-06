@@ -125,7 +125,7 @@ class Crawler extends \SplObjectStorage
         $dom->validateOnParse = true;
 
         $current = libxml_use_internal_errors(true);
-        @$dom->loadHTML($content);
+        @$dom->loadHTML('<?xml encoding="'.$charset.'">'.$content);
         libxml_use_internal_errors($current);
 
         $this->addDocument($dom);
