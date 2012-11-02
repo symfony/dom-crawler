@@ -94,7 +94,6 @@ class Crawler extends \SplObjectStorage
             return null;
         }
 
-        $charset = 'ISO-8859-1';
         if (false !== $pos = strpos($type, 'charset=')) {
             $charset = substr($type, $pos + 8);
             if (false !== $pos = strpos($charset, ';')) {
