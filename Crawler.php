@@ -25,7 +25,7 @@ class Crawler extends \SplObjectStorage
     /**
      * @var string The current URI or the base href value
      */
-    private $uri;
+    protected $uri;
 
     /**
      * Constructor.
