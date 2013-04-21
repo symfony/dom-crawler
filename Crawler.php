@@ -94,7 +94,6 @@ class Crawler extends \SplObjectStorage
             return null;
         }
 
-        $charset = 'ISO-8859-1';
         if (false !== $pos = strpos($type, 'charset=')) {
             $charset = substr($type, $pos + 8);
             if (false !== $pos = strpos($charset, ';')) {
@@ -479,6 +478,29 @@ class Crawler extends \SplObjectStorage
 
         return $this->getNode(0)->nodeValue;
     }
+    
+    /**
+     * Returns the html of a node
+     * @return string The node html
+     *
+     * @throws \InvalidArgumentException When current node is empty
+     *
+     * @api
+     */
+    public function html() {
+
+        if (!count($this)) {
+            throw new \InvalidArgumentException('The current node list is empty.');
+        }
+
+        foreach ($this->getNode(0)->childNodes as $child) {
+           $html .= $child->ownerDocument->saveXML($child);
+        }
+
+
+        return str_replace('&#13;', '', $html);
+    }
+
 
     /**
      * Extracts information from the list of nodes.
