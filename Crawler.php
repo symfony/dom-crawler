@@ -343,7 +343,10 @@ class Crawler extends \SplObjectStorage
     {
         $data = array();
         foreach ($this as $i => $node) {
-            $data[] = $closure(new static($node, $this->uri, $this->baseHref), $i);
+            $result = $closure(new static($node, $this->uri, $this->baseHref), $i);
+            if ($result !== null) {
+                $data[] = $result;
+            }
         }
 
         return $data;
