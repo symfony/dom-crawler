@@ -313,6 +313,12 @@ EOF
         $this->assertEquals(array('0-One', '1-Two', '2-Three'), $data, '->each() executes an anonymous function on each node of the list');
     }
 
+    public function testEachWithCallable()
+    {
+        $data = $this->createTestCrawler()->filterXPath('//ul[1]/li')->each(array($this, 'hyphenateNumber'));
+        $this->assertEquals(array('0-One', '1-Two', '2-Three'), $data, '->each() executes an anonymous function on each node of the list');
+    }
+
     public function testSlice()
     {
         $crawler = $this->createTestCrawler()->filterXPath('//ul[1]/li');
@@ -329,6 +335,16 @@ EOF
         $nodes = $crawler->reduce(function ($node, $i) {
             return $i !== 1;
         });
+        $this->assertNotSame($nodes, $crawler, '->reduce() returns a new instance of a crawler');
+        $this->assertInstanceOf('Symfony\\Component\\DomCrawler\\Crawler', $nodes, '->reduce() returns a new instance of a crawler');
+
+        $this->assertCount(2, $nodes, '->reduce() filters the nodes in the list');
+    }
+
+    public function testReduceWithCallable()
+    {
+        $crawler = $this->createTestCrawler()->filterXPath('//ul[1]/li');
+        $nodes = $crawler->reduce(array($this, 'isNotOne'));
         $this->assertNotSame($nodes, $crawler, '->reduce() returns a new instance of a crawler');
         $this->assertInstanceOf('Symfony\\Component\\DomCrawler\\Crawler', $nodes, '->reduce() returns a new instance of a crawler');
 
@@ -1075,5 +1091,15 @@ HTML;
         $domxpath = new \DOMXPath($dom);
 
         return $domxpath->query('//div');
+    }
+
+    public function hyphenateNumber($node, $i)
+    {
+        return $i.'-'.$node->text();
+    }
+
+    public function isNotOne($node, $i)
+    {
+        return $i !== 1;
     }
 }

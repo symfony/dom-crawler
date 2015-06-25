@@ -340,7 +340,7 @@ class Crawler extends \SplObjectStorage
      *
      * @api
      */
-    public function each(\Closure $closure)
+    public function each(callable $closure)
     {
         $data = array();
         foreach ($this as $i => $node) {
@@ -374,7 +374,7 @@ class Crawler extends \SplObjectStorage
      *
      * @api
      */
-    public function reduce(\Closure $closure)
+    public function reduce(callable $closure)
     {
         $nodes = array();
         foreach ($this as $i => $node) {
