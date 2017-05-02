@@ -285,10 +285,10 @@ class ChoiceFormField extends FormField
             return true;
         }
 
-        foreach ($options as $option) {
-            if ($option['value'] == $optionValue) {
-                return true;
-            }
+        $values = array_column($options, 'value');
+
+        if (in_array($optionValue, $values)) {
+            return true;
         }
 
         return false;
@@ -301,13 +301,7 @@ class ChoiceFormField extends FormField
      */
     public function availableOptionValues()
     {
-        $values = array();
-
-        foreach ($this->options as $option) {
-            $values[] = $option['value'];
-        }
-
-        return $values;
+        return array_column($this->options, 'value');
     }
 
     /**
