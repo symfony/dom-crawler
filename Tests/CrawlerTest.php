@@ -407,6 +407,14 @@ EOF
         }
     }
 
+    public function testHtml2()
+    {
+        $crawler = new Crawler();
+        $crawler->addHtmlContent(file_get_contents(__DIR__.'/Fixtures/bash.im-windows-1251.html'), 'windows-1251');
+        $text_node = $crawler->filter('#body div.quote div.text')->first();
+        $this->assertContains('Парни, у вас такой проблемы нет?', $text_node->html());
+    }
+
     public function testExtract()
     {
         $crawler = $this->createTestCrawler()->filterXPath('//ul[1]/li');
