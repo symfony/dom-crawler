@@ -570,6 +570,24 @@ class Crawler implements \Countable, \IteratorAggregate
 
         return $this->getNode(0)->nodeValue;
     }
+    
+    /**
+     * Returns the node html contents of the first node of the list.
+     *
+     * @return string The node html contents
+     *
+     * @throws \InvalidArgumentException When current node is empty
+     *
+     * @api
+     */
+    public function html()
+    {        
+        if (!count($this)) {
+            throw new \InvalidArgumentException('The current node list is empty.');
+        }
+
+        return $this->getNode(0)->ownerDocument->saveXML($this->getNode(0));
+    }
 
     /**
      * Returns the first node of the list as HTML.
