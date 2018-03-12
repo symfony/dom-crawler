@@ -590,6 +590,27 @@ class Crawler implements \Countable, \IteratorAggregate
     }
 
     /**
+     * Returns the first node of the list as XML.
+     *
+     * @return string The node xml
+     *
+     * @throws \InvalidArgumentException When current node is empty
+     */
+    public function xml()
+    {
+        if (!$this->nodes) {
+            throw new \InvalidArgumentException('The current node list is empty.');
+        }
+
+        $html = '';
+        foreach ($this->getNode(0)->childNodes as $child) {
+            $html .= $child->ownerDocument->saveXML($child);
+        }
+
+        return $html;
+    }
+
+    /**
      * Evaluates an XPath expression.
      *
      * Since an XPath expression might evaluate to either a simple type or a \DOMNodeList,

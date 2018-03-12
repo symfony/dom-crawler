@@ -407,6 +407,22 @@ EOF
         }
     }
 
+    public function testXml()
+    {
+
+        $crawler = new Crawler();
+        $crawler->addXmlContent('<root><div><col></col></div></root>', 'UTF-8');
+
+        $this->assertEquals('<col/>', $crawler->filterXPath('//div')->xml());
+
+        try {
+            $crawler->filterXPath('//blah')->xml();
+            $this->fail('->xml() throws an \InvalidArgumentException if the node list is empty');
+        } catch (\InvalidArgumentException $e) {
+            $this->assertTrue(true, '->xml() throws an \InvalidArgumentException if the node list is empty');
+        }
+    }
+
     public function testExtract()
     {
         $crawler = $this->createTestCrawler()->filterXPath('//ul[1]/li');
