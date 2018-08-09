@@ -463,7 +463,7 @@ class Form extends Link implements \ArrayAccess
 
     private function addField(\DOMElement $node)
     {
-        if (!$node->hasAttribute('name') || !$node->getAttribute('name')) {
+        if (!$node->hasAttribute('name') || !$node->getAttribute('name') || $node->hasAttribute('disabled')) {
             return;
         }
 
