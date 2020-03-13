@@ -44,8 +44,13 @@ final class CrawlerSelectorTextSame extends Constraint
         if (!\count($crawler)) {
             return false;
         }
-
-        return $this->expectedText === trim($crawler->text(null, false));
+        
+        foreach($crawler as $node){
+            if ($this->expectedText === trim($node->nodeValue)){
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
