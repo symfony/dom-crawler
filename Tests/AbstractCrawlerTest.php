@@ -362,8 +362,8 @@ abstract class AbstractCrawlerTest extends TestCase
     {
         self::assertCount(1, $crawler = $this->createTestCrawler()->filterXPath('//*[@id="complex-element"]'));
 
-        self::assertSame('Parent text Child text', $crawler->text());
-        self::assertSame('Parent text', $crawler->innerText());
+        self::assertSame('Parent text Child text More parent text', $crawler->text());
+        self::assertSame('Parent text More parent text', $crawler->innerText());
     }
 
     public function testHtml()
@@ -1303,6 +1303,7 @@ HTML;
                     <div id="complex-element">
                         Parent text
                         <span>Child text</span>
+                        More parent text
                     </div>
                 </body>
             </html>

@@ -623,7 +623,7 @@ class Crawler implements \Countable, \IteratorAggregate
         $text = $this->getNode(0)->nodeValue;
 
         if ($normalizeWhitespace) {
-            return trim(preg_replace("/(?:[ \n\r\t\x0C]{2,}+|[\n\r\t\x0C])/", ' ', $text), " \n\r\t\x0C");
+            return $this->normalizeWhitespace($text);
         }
 
         return $text;
@@ -631,10 +631,31 @@ class Crawler implements \Countable, \IteratorAggregate
 
     /**
      * Returns only the inner text that is the direct descendent of the current node, excluding any child nodes.
+     *
+     * @param string|null $default             When not null: the value to return when the current node is empty
+     * @param bool        $normalizeWhitespace Whether whitespaces should be trimmed and normalized to single spaces
+     *
+     * @throws \InvalidArgumentException When current node is empty
      */
-    public function innerText(): string
+    public function innerText(string $default = null, bool $normalizeWhitespace = true): string
     {
-        return $this->filterXPath('.//text()')->text();
+        if (!$this->nodes) {
+            if (null !== $default) {
+                return $default;
+            }
+
+            throw new \InvalidArgumentException('The current node list is empty.');
+        }
+
+        $innerText = '';
+
+        foreach ($this->getNode(0)->childNodes as $childNode) {
+            if ($childNode->nodeType === XML_TEXT_NODE && trim($childNode->nodeValue) !== '') {
+                $innerText .= ($innerText !== '' ? ' ' : '') . $childNode->nodeValue;
+            }
+        }
+
+        return $normalizeWhitespace ? $this->normalizeWhitespace($innerText) : $innerText;
     }
 
     /**
@@ -1305,5 +1326,10 @@ class Crawler implements \Countable, \IteratorAggregate
     private function isValidHtml5Heading(string $heading): bool
     {
         return 1 === preg_match('/^\x{FEFF}?\s*(<!--[^>]*?-->\s*)*$/u', $heading);
+    }
+
+    private function normalizeWhitespace(string $string): string
+    {
+        return trim(preg_replace("/(?:[ \n\r\t\x0C]{2,}+|[\n\r\t\x0C])/", ' ', $string), " \n\r\t\x0C");
     }
 }
