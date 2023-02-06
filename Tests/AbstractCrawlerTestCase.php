@@ -17,7 +17,7 @@ use Symfony\Component\DomCrawler\Form;
 use Symfony\Component\DomCrawler\Image;
 use Symfony\Component\DomCrawler\Link;
 
-abstract class AbstractCrawlerTest extends TestCase
+abstract class AbstractCrawlerTestCase extends TestCase
 {
     abstract public static function getDoctype(): string;
 
