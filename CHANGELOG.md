@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+8.1
+---
+
+ * Allow to add choices to single select
+
 8.0
 ---
 
