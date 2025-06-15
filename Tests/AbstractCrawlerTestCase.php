@@ -452,10 +452,10 @@ abstract class AbstractCrawlerTestCase extends TestCase
         $this->assertCount(0, $crawler->filterXPath('/body'));
         $this->assertCount(1, $crawler->filterXPath('./body'));
         $this->assertCount(1, $crawler->filterXPath('.//body'));
-        $this->assertCount(5, $crawler->filterXPath('.//input'));
+        $this->assertCount(6, $crawler->filterXPath('.//input'));
         $this->assertCount(4, $crawler->filterXPath('//form')->filterXPath('//button | //input'));
         $this->assertCount(1, $crawler->filterXPath('body'));
-        $this->assertCount(6, $crawler->filterXPath('//button | //input'));
+        $this->assertCount(8, $crawler->filterXPath('//button | //input'));
         $this->assertCount(1, $crawler->filterXPath('//body'));
         $this->assertCount(1, $crawler->filterXPath('descendant-or-self::body'));
         $this->assertCount(1, $crawler->filterXPath('//div[@id="parent"]')->filterXPath('./div'), 'A child selection finds only the current div');
@@ -723,16 +723,23 @@ abstract class AbstractCrawlerTestCase extends TestCase
         $this->assertNotSame($crawler, $crawler->selectButton('FooValue'), '->selectButton() returns a new instance of a crawler');
         $this->assertInstanceOf(Crawler::class, $crawler->selectButton('FooValue'), '->selectButton() returns a new instance of a crawler');
 
-        $this->assertEquals(1, $crawler->selectButton('FooValue')->count(), '->selectButton() selects buttons');
-        $this->assertEquals(1, $crawler->selectButton('FooName')->count(), '->selectButton() selects buttons');
-        $this->assertEquals(1, $crawler->selectButton('FooId')->count(), '->selectButton() selects buttons');
+        $this->assertCount(1, $crawler->selectButton('FooValue'), '->selectButton() selects type-submit inputs by value');
+        $this->assertCount(1, $crawler->selectButton('FooName'), '->selectButton() selects type-submit inputs by name');
+        $this->assertCount(1, $crawler->selectButton('FooId'), '->selectButton() selects type-submit inputs by id');
 
-        $this->assertEquals(1, $crawler->selectButton('BarValue')->count(), '->selectButton() selects buttons');
-        $this->assertEquals(1, $crawler->selectButton('BarName')->count(), '->selectButton() selects buttons');
-        $this->assertEquals(1, $crawler->selectButton('BarId')->count(), '->selectButton() selects buttons');
+        $this->assertCount(1, $crawler->selectButton('BarValue'), '->selectButton() selects type-button inputs by value');
+        $this->assertCount(1, $crawler->selectButton('BarName'), '->selectButton() selects type-button inputs by name');
+        $this->assertCount(1, $crawler->selectButton('BarId'), '->selectButton() selects type-button inputs by id');
 
-        $this->assertEquals(1, $crawler->selectButton('FooBarValue')->count(), '->selectButton() selects buttons with form attribute too');
-        $this->assertEquals(1, $crawler->selectButton('FooBarName')->count(), '->selectButton() selects buttons with form attribute too');
+        $this->assertCount(1, $crawler->selectButton('ImageAlt'), '->selectButton() selects type-image inputs by alt');
+
+        $this->assertCount(1, $crawler->selectButton('ButtonValue'), '->selectButton() selects buttons by value');
+        $this->assertCount(1, $crawler->selectButton('ButtonName'), '->selectButton() selects buttons by name');
+        $this->assertCount(1, $crawler->selectButton('ButtonId'), '->selectButton() selects buttons by id');
+        $this->assertCount(1, $crawler->selectButton('ButtonText'), '->selectButton() selects buttons by text content');
+
+        $this->assertCount(1, $crawler->selectButton('FooBarValue'), '->selectButton() selects buttons with form attribute too');
+        $this->assertCount(1, $crawler->selectButton('FooBarName'), '->selectButton() selects buttons with form attribute too');
     }
 
     public function testSelectButtonWithSingleQuotesInNameAttribute()
@@ -1321,6 +1328,9 @@ HTML;
 
                     <input type="submit" value="FooBarValue" name="FooBarName" form="FooFormId" />
                     <input type="text" value="FooTextValue" name="FooTextName" form="FooFormId" />
+
+                    <input type="image" alt="ImageAlt" form="FooFormId">
+                    <button form="FooFormId">ButtonText</button>
 
                     <ul class="first">
                         <li class="first">One</li>
