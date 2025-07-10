@@ -31,7 +31,7 @@ class InputFormField extends FormField
     protected function initialize()
     {
         if ('input' !== $this->node->nodeName && 'button' !== $this->node->nodeName) {
-            throw new \LogicException(sprintf('An InputFormField can only be created from an input or button tag (%s given).', $this->node->nodeName));
+            throw new \LogicException(\sprintf('An InputFormField can only be created from an input or button tag (%s given).', $this->node->nodeName));
         }
 
         $type = strtolower($this->node->getAttribute('type'));
