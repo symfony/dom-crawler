@@ -11,6 +11,9 @@
 
 namespace Symfony\Component\DomCrawler\Tests;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\RequiresPhpExtension;
+use PHPUnit\Framework\Error\Notice;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\DomCrawler\Form;
@@ -104,9 +107,7 @@ abstract class AbstractCrawlerTestCase extends TestCase
         $this->assertEquals('http://symfony.com/contact', $crawler->filterXPath('//a')->link()->getUri(), '->addHtmlContent() adds nodes from an HTML string');
     }
 
-    /**
-     * @requires extension mbstring
-     */
+    #[RequiresPhpExtension('mbstring')]
     public function testAddHtmlContentCharset()
     {
         $crawler = $this->createCrawler();
@@ -123,9 +124,7 @@ abstract class AbstractCrawlerTestCase extends TestCase
         $this->assertEquals('http://symfony.com/contact', current($crawler->filterXPath('//a')->links())->getUri(), '->addHtmlContent() correctly handles a non-existent base tag href attribute');
     }
 
-    /**
-     * @requires extension mbstring
-     */
+    #[RequiresPhpExtension('mbstring')]
     public function testAddHtmlContentCharsetGbk()
     {
         $crawler = $this->createCrawler();
@@ -190,9 +189,7 @@ abstract class AbstractCrawlerTestCase extends TestCase
         $this->assertEquals('var foo = "bär";', $crawler->filterXPath('//script')->text(), '->addContent() does not interfere with script content');
     }
 
-    /**
-     * @requires extension iconv
-     */
+    #[RequiresPhpExtension('iconv')]
     public function testAddContentNonUtf8()
     {
         $crawler = $this->createCrawler();
@@ -393,9 +390,7 @@ abstract class AbstractCrawlerTestCase extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideInnerTextExamples
-     */
+    #[DataProvider('provideInnerTextExamples')]
     public function testInnerText(
         string $xPathQuery,
         string $expectedText,
@@ -975,7 +970,7 @@ HTML;
         yield ['#bar', false, '.foo'];
     }
 
-    /** @dataProvider provideMatchTests */
+    #[DataProvider('provideMatchTests')]
     public function testMatch(string $mainNodeSelector, bool $expected, string $selector)
     {
         $html = <<<'HTML'
@@ -1143,7 +1138,7 @@ HTML;
             $crawler = $this->createCrawler('<p></p>');
             $crawler->filter('p')->children();
             $this->assertTrue(true, '->children() does not trigger a notice if the node has no children');
-        } catch (\PHPUnit\Framework\Error\Notice $e) {
+        } catch (Notice $e) {
             $this->fail('->children() does not trigger a notice if the node has no children');
         }
     }
@@ -1199,9 +1194,7 @@ HTML;
         $this->createTestCrawler()->filterXPath('//ol')->ancestors();
     }
 
-    /**
-     * @dataProvider getBaseTagData
-     */
+    #[DataProvider('getBaseTagData')]
     public function testBaseTag($baseValue, $linkValue, $expectedUri, $currentUri = null, $description = '')
     {
         $crawler = $this->createCrawler($this->getDoctype().'<html><base href="'.$baseValue.'"><a href="'.$linkValue.'"></a></html>', $currentUri);
@@ -1219,9 +1212,7 @@ HTML;
         ];
     }
 
-    /**
-     * @dataProvider getBaseTagWithFormData
-     */
+    #[DataProvider('getBaseTagWithFormData')]
     public function testBaseTagWithForm($baseValue, $actionValue, $expectedUri, $currentUri = null, $description = null)
     {
         $crawler = $this->createCrawler($this->getDoctype().'<html><base href="'.$baseValue.'"><form method="post" action="'.$actionValue.'"><button type="submit" name="submit"/></form></html>', $currentUri);

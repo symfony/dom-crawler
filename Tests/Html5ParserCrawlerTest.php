@@ -11,6 +11,9 @@
 
 namespace Symfony\Component\DomCrawler\Tests;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
+
 class Html5ParserCrawlerTest extends AbstractCrawlerTestCase
 {
     public static function getDoctype(): string
@@ -26,7 +29,7 @@ class Html5ParserCrawlerTest extends AbstractCrawlerTestCase
         $this->assertEquals('Foo', $crawler->filterXPath('//h1')->text(), '->add() adds nodes from a string');
     }
 
-    /** @dataProvider validHtml5Provider */
+    #[DataProvider('validHtml5Provider')]
     public function testHtml5ParserParseContentStartingWithValidHeading(string $content)
     {
         $crawler = $this->createCrawler();
@@ -38,7 +41,7 @@ class Html5ParserCrawlerTest extends AbstractCrawlerTestCase
         );
     }
 
-    /** @dataProvider invalidHtml5Provider */
+    #[DataProvider('invalidHtml5Provider')]
     public function testHtml5ParserWithInvalidHeadedContent(string $content)
     {
         $crawler = $this->createCrawler();
@@ -60,10 +63,8 @@ class Html5ParserCrawlerTest extends AbstractCrawlerTestCase
         $this->assertNotEquals($nativeCrawler->filterXPath('//h1')->text(), $html5Crawler->filterXPath('//h1')->text(), 'Native parser and Html5 parser must be different');
     }
 
-    /**
-     * @testWith [true]
-     *           [false]
-     */
+    #[TestWith([true])]
+    #[TestWith([false])]
     public function testHasHtml5Parser(bool $useHtml5Parser)
     {
         $crawler = $this->createCrawler(null, null, null, $useHtml5Parser);
