@@ -29,7 +29,8 @@ class NativeParserCrawlerTest extends AbstractCrawlerTestCase
     <head>
     </head>
     <body>
-        <nav><a href="#"><a href="#"></nav>
+        <div><a href="#"></div>
+    </body>
     </body>
 </html>
 EOF
@@ -37,7 +38,7 @@ EOF
 
         $errors = libxml_get_errors();
         $this->assertCount(1, $errors);
-        $this->assertEquals("Tag nav invalid\n", $errors[0]->message);
+        $this->assertEquals("Unexpected end tag : body\n", $errors[0]->message);
 
         libxml_clear_errors();
         libxml_use_internal_errors($internalErrors);
