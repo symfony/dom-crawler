@@ -740,17 +740,17 @@ abstract class AbstractCrawlerTestCase extends TestCase
     public function testSelectButtonWithSingleQuotesInNameAttribute()
     {
         $html = <<<'HTML'
-<html lang="en">
-<body>
-    <div id="action">
-        <a href="/index.php?r=site/login">Login</a>
-    </div>
-    <form id="login-form" action="/index.php?r=site/login" method="post">
-        <button type="submit" name="Click 'Here'">Submit</button>
-    </form>
-</body>
-</html>
-HTML;
+            <html lang="en">
+            <body>
+                <div id="action">
+                    <a href="/index.php?r=site/login">Login</a>
+                </div>
+                <form id="login-form" action="/index.php?r=site/login" method="post">
+                    <button type="submit" name="Click 'Here'">Submit</button>
+                </form>
+            </body>
+            </html>
+            HTML;
 
         $crawler = $this->createCrawler($this->getDoctype().$html);
 
@@ -760,17 +760,17 @@ HTML;
     public function testSelectButtonWithDoubleQuotesInNameAttribute()
     {
         $html = <<<'HTML'
-<html lang="en">
-<body>
-    <div id="action">
-        <a href="/index.php?r=site/login">Login</a>
-    </div>
-    <form id="login-form" action="/index.php?r=site/login" method="post">
-        <button type="submit" name='Click "Here"'>Submit</button>
-    </form>
-</body>
-</html>
-HTML;
+            <html lang="en">
+            <body>
+                <div id="action">
+                    <a href="/index.php?r=site/login">Login</a>
+                </div>
+                <form id="login-form" action="/index.php?r=site/login" method="post">
+                    <button type="submit" name='Click "Here"'>Submit</button>
+                </form>
+            </body>
+            </html>
+            HTML;
 
         $crawler = $this->createCrawler($this->getDoctype().$html);
 
@@ -827,17 +827,17 @@ HTML;
     public function testSelectLinkAndLinkFiltered()
     {
         $html = <<<'HTML'
-<html lang="en">
-<body>
-    <div id="action">
-        <a href="/index.php?r=site/login">Login</a>
-    </div>
-    <form id="login-form" action="/index.php?r=site/login" method="post">
-        <button type="submit">Submit</button>
-    </form>
-</body>
-</html>
-HTML;
+            <html lang="en">
+            <body>
+                <div id="action">
+                    <a href="/index.php?r=site/login">Login</a>
+                </div>
+                <form id="login-form" action="/index.php?r=site/login" method="post">
+                    <button type="submit">Submit</button>
+                </form>
+            </body>
+            </html>
+            HTML;
 
         $crawler = $this->createCrawler($this->getDoctype().$html);
         $filtered = $crawler->filterXPath("descendant-or-self::*[@id = 'login-form']");
@@ -974,16 +974,16 @@ HTML;
     public function testMatch(string $mainNodeSelector, bool $expected, string $selector)
     {
         $html = <<<'HTML'
-<html lang="en">
-<body>
-    <div id="foo" class="foo other">
-        <div>
-            <div id="bar" class="bar other"></div>
-        </div>
-    </div>
-</body>
-</html>
-HTML;
+            <html lang="en">
+            <body>
+                <div id="foo" class="foo other">
+                    <div>
+                        <div id="bar" class="bar other"></div>
+                    </div>
+                </div>
+            </body>
+            </html>
+            HTML;
 
         $crawler = $this->createCrawler($this->getDoctype().$html);
         $node = $crawler->filter($mainNodeSelector);
@@ -993,23 +993,23 @@ HTML;
     public function testClosest()
     {
         $html = <<<'HTML'
-<html lang="en">
-<body>
-    <div class="lorem2 ok">
-        <div>
-            <div class="lorem3 ko"></div>
-        </div>
-        <div class="lorem1 ok">
-            <div id="foo" class="newFoo ok">
-                <div class="lorem1 ko"></div>
-            </div>
-        </div>
-    </div>
-    <div class="lorem2 ko">
-    </div>
-</body>
-</html>
-HTML;
+            <html lang="en">
+            <body>
+                <div class="lorem2 ok">
+                    <div>
+                        <div class="lorem3 ko"></div>
+                    </div>
+                    <div class="lorem1 ok">
+                        <div id="foo" class="newFoo ok">
+                            <div class="lorem1 ko"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="lorem2 ko">
+                </div>
+            </body>
+            </html>
+            HTML;
 
         $crawler = $this->createCrawler($this->getDoctype().$html);
         $foo = $crawler->filter('#foo');
@@ -1036,14 +1036,14 @@ HTML;
     public function testClosestWithOrphanedNode()
     {
         $html = <<<'HTML'
-<html lang="en">
-<body>
-    <div id="foo" class="newFoo ok">
-        <div class="lorem1 ko"></div>
-    </div>
-</body>
-</html>
-HTML;
+            <html lang="en">
+            <body>
+                <div id="foo" class="newFoo ok">
+                    <div class="lorem1 ko"></div>
+                </div>
+            </body>
+            </html>
+            HTML;
 
         $crawler = $this->createCrawler($this->getDoctype().$html);
         $foo = $crawler->filter('#foo');
@@ -1059,17 +1059,17 @@ HTML;
     public function testOuterHtml()
     {
         $html = <<<'HTML'
-<html lang="en">
-<body>
-    <div class="foo">
-    <ul>
-        <li>1</li>
-        <li>2</li>
-        <li>3</li>
-    </ul>
-</body>
-</html>
-HTML;
+            <html lang="en">
+            <body>
+                <div class="foo">
+                <ul>
+                    <li>1</li>
+                    <li>2</li>
+                    <li>3</li>
+                </ul>
+            </body>
+            </html>
+            HTML;
 
         $crawler = $this->createCrawler($this->getDoctype().$html);
         $bar = $crawler->filter('ul');
@@ -1146,20 +1146,20 @@ HTML;
     public function testFilteredChildren()
     {
         $html = <<<'HTML'
-<html lang="en">
-<body>
-    <div id="foo">
-        <div class="lorem">
-            <p class="lorem"></p>
-        </div>
-        <div class="lorem">
-            <span class="lorem"></span>
-        </div>
-        <span class="ipsum"></span>
-    </div>
-</body>
-</html>
-HTML;
+            <html lang="en">
+            <body>
+                <div id="foo">
+                    <div class="lorem">
+                        <p class="lorem"></p>
+                    </div>
+                    <div class="lorem">
+                        <span class="lorem"></span>
+                    </div>
+                    <span class="ipsum"></span>
+                </div>
+            </body>
+            </html>
+            HTML;
 
         $crawler = $this->createCrawler($this->getDoctype().$html);
         $foo = $crawler->filter('#foo');
