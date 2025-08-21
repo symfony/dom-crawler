@@ -12,6 +12,8 @@
 namespace Symfony\Component\DomCrawler\Tests;
 
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 use PHPUnit\Framework\Error\Notice;
 use PHPUnit\Framework\TestCase;
@@ -20,13 +22,16 @@ use Symfony\Component\DomCrawler\Form;
 use Symfony\Component\DomCrawler\Image;
 use Symfony\Component\DomCrawler\Link;
 
-abstract class AbstractCrawlerTestCase extends TestCase
+class CrawlerTestCase extends TestCase
 {
-    abstract public static function getDoctype(): string;
-
-    protected function createCrawler($node = null, ?string $uri = null, ?string $baseHref = null, bool $useHtml5Parser = true)
+    public static function getDoctype(): string
     {
-        return new Crawler($node, $uri, $baseHref, $useHtml5Parser);
+        return '<!DOCTYPE html>';
+    }
+
+    protected function createCrawler($node = null, ?string $uri = null, ?string $baseHref = null)
+    {
+        return new Crawler($node, $uri, $baseHref, \PHP_VERSION_ID >= 80400);
     }
 
     public function testConstructor()
@@ -34,7 +39,7 @@ abstract class AbstractCrawlerTestCase extends TestCase
         $crawler = $this->createCrawler();
         $this->assertCount(0, $crawler, '__construct() returns an empty crawler');
 
-        $doc = new \DOMDocument();
+        $doc = $this->createDomDocument();
         $node = $doc->createElement('test');
 
         $crawler = $this->createCrawler($node);
@@ -236,7 +241,7 @@ abstract class AbstractCrawlerTestCase extends TestCase
 
     public function testClear()
     {
-        $doc = new \DOMDocument();
+        $doc = $this->createDomDocument();
         $node = $doc->createElement('test');
 
         $crawler = $this->createCrawler($node);
@@ -407,7 +412,7 @@ abstract class AbstractCrawlerTestCase extends TestCase
     public function testHtml()
     {
         $this->assertEquals('<img alt="Bar">', $this->createTestCrawler()->filterXPath('//a[5]')->html());
-        $this->assertEquals('<input type="text" value="TextValue" name="TextName"><input type="submit" value="FooValue" name="FooName" id="FooId"><input type="button" value="BarValue" name="BarName" id="BarId"><button value="ButtonValue" name="ButtonName" id="ButtonId"></button>', trim(preg_replace('~>\s+<~', '><', $this->createTestCrawler()->filterXPath('//form[@id="FooFormId"]')->html())));
+        $this->assertEquals('<input type="text" value="TextValue" name="TextName"><input type="submit" value="FooValue" name="FooName" id="FooId"><input type="button" value="BarValue" name="BarName" id="BarId"><button value="ButtonValue" name="ButtonName" id="ButtonId"><input type="submit" value="FooBarValue" name="FooBarName" form="FooFormId"><input type="text" value="FooTextValue" name="FooTextName" form="FooFormId"><input type="image" alt="ImageAlt" form="FooFormId"></button>', trim(preg_replace('~>\s+<~', '><', $this->createTestCrawler()->filterXPath('//form[@id="FooFormId"]')->html())));
 
         try {
             $this->createTestCrawler()->filterXPath('//ol')->html();
@@ -421,9 +426,9 @@ abstract class AbstractCrawlerTestCase extends TestCase
 
     public function testEmojis()
     {
-        $crawler = $this->createCrawler('<body><p>Hey 👋</p></body>');
+        $crawler = $this->createCrawler('<head></head><body><p>Hey 👋</p></body>');
 
-        $this->assertSame('<body><p>Hey 👋</p></body>', $crawler->html());
+        $this->assertSame('<head></head><body><p>Hey 👋</p></body>', $crawler->html());
     }
 
     public function testExtract()
@@ -448,7 +453,7 @@ abstract class AbstractCrawlerTestCase extends TestCase
         $this->assertCount(1, $crawler->filterXPath('./body'));
         $this->assertCount(1, $crawler->filterXPath('.//body'));
         $this->assertCount(6, $crawler->filterXPath('.//input'));
-        $this->assertCount(4, $crawler->filterXPath('//form')->filterXPath('//button | //input'));
+        $this->assertCount(7, $crawler->filterXPath('//form')->filterXPath('//button | //input'));
         $this->assertCount(1, $crawler->filterXPath('body'));
         $this->assertCount(8, $crawler->filterXPath('//button | //input'));
         $this->assertCount(1, $crawler->filterXPath('//body'));
@@ -528,6 +533,16 @@ abstract class AbstractCrawlerTestCase extends TestCase
         $crawler = $crawler->filterXPath('//media:category[@scheme="http://gdata.youtube.com/schemas/2007/categories.cat"]');
         $this->assertCount(1, $crawler);
         $this->assertSame('Music', $crawler->text());
+    }
+
+    public function testCaseSentivity()
+    {
+        $crawler = $this->createTestXmlCrawler();
+
+        $crawler = $crawler->filterXPath('//*[local-name() = "CaseSensitiveTag"]');
+        $this->assertCount(1, $crawler);
+        $this->assertSame('Some Content', $crawler->text());
+        $this->assertSame('CaseSensitiveTag', $crawler->nodeName());
     }
 
     public function testFilterXPathWithFakeRoot()
@@ -1290,10 +1305,82 @@ abstract class AbstractCrawlerTestCase extends TestCase
         $this->assertEquals('Žťčýů', $crawler->filterXPath('//p')->text());
     }
 
-    public function createTestCrawler($uri = null)
+    public function testAddXmlContentWithErrors()
     {
-        $dom = new \DOMDocument();
-        $dom->loadHTML($this->getDoctype().'
+        $internalErrors = libxml_use_internal_errors(true);
+
+        $crawler = $this->createCrawler();
+        $crawler->addXmlContent(<<<'EOF'
+            <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+            <html>
+                <head>
+                </head>
+                <body>
+                    <nav><a href="#"><a href="#"></nav>
+                </body>
+            </html>
+            EOF,
+            'UTF-8'
+        );
+
+        $this->assertGreaterThan(1, libxml_get_errors());
+
+        libxml_clear_errors();
+        libxml_use_internal_errors($internalErrors);
+    }
+
+    #[IgnoreDeprecations]
+    #[Group('legacy')]
+    public function testHtml5ParserNotSameAsNativeParserForSpecificHtml()
+    {
+        // Html who create a bug specific to the DOM extension (see https://github.com/symfony/symfony/issues/28596)
+        $html = '<!DOCTYPE html><html><body><h1><p>Foo</p></h1></body></html>';
+
+        $html5Crawler = new Crawler(null, null, null, true);
+        $html5Crawler->add($html);
+
+        $nativeCrawler = new Crawler(null, null, null, false);
+        $nativeCrawler->add($html);
+
+        $this->assertNotEquals($nativeCrawler->filterXPath('//h1')->text(), $html5Crawler->filterXPath('//h1')->text(), 'Native parser and Html5 parser must be different');
+    }
+
+    public function testAddHtml5()
+    {
+        // Ensure a bug specific to the DOM extension is fixed (see https://github.com/symfony/symfony/issues/28596)
+        $crawler = $this->createCrawler();
+        $crawler->add($this->getDoctype().'<html><body><h1><p>Foo</p></h1></body></html>');
+        $this->assertEquals('Foo', $crawler->filterXPath('//h1')->text(), '->add() adds nodes from a string');
+    }
+
+    #[DataProvider('html5Provider')]
+    public function testHtml5ParserParseContentStartingWithValidHeading(string $content)
+    {
+        $crawler = $this->createCrawler();
+        $crawler->addHtmlContent($content);
+        self::assertEquals(
+            'Foo',
+            $crawler->filterXPath('//h1')->text(),
+            '->addHtmlContent() parses valid HTML with comment before doctype'
+        );
+    }
+
+    public static function html5Provider(): iterable
+    {
+        $html = self::getDoctype().'<html><body><h1><p>Foo</p></h1></body></html>';
+        $BOM = \chr(0xEF).\chr(0xBB).\chr(0xBF);
+
+        yield 'BOM first' => [$BOM.$html];
+        yield 'Single comment' => ['<!-- comment -->'.$html];
+        yield 'Multiline comment' => ["<!-- \n multiline comment \n -->".$html];
+        yield 'Several comments' => ['<!--c--> <!--cc-->'.$html];
+        yield 'Whitespaces' => ['    '.$html];
+        yield 'All together' => [$BOM.'  <!--c-->'.$html];
+    }
+
+    protected function createTestCrawler($uri = null)
+    {
+        $html = $this->getDoctype().'
             <html>
                 <body>
                     <a href="foo">Foo</a>
@@ -1352,9 +1439,9 @@ abstract class AbstractCrawlerTestCase extends TestCase
                     </div>
                 </body>
             </html>
-        ');
+        ';
 
-        return $this->createCrawler($dom, $uri);
+        return $this->createCrawler($html, $uri);
     }
 
     protected function createTestXmlCrawler($uri = null)
@@ -1369,6 +1456,7 @@ abstract class AbstractCrawlerTestCase extends TestCase
                     <yt:aspectRatio>widescreen</yt:aspectRatio>
                 </media:group>
                 <media:category label="Music" scheme="http://gdata.youtube.com/schemas/2007/categories.cat">Music</media:category>
+                <CaseSensitiveTag>Some Content</CaseSensitiveTag>
             </entry>';
 
         return $this->createCrawler($xml, $uri);

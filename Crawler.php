@@ -62,10 +62,14 @@ class Crawler implements \Countable, \IteratorAggregate
         \DOMNodeList|\DOMNode|array|string|null $node = null,
         protected ?string $uri = null,
         ?string $baseHref = null,
-        bool $useHtml5Parser = true,
+        private bool $useHtml5Parser = true,
     ) {
+        if (\PHP_VERSION_ID >= 80400 && !$useHtml5Parser) {
+            trigger_deprecation('symfony/dom-crawler', '7.4', 'Disabling HTML5 parsing is deprecated. Symfony 8 will unconditionally use the native HTML5 parser.');
+        }
+
         $this->baseHref = $baseHref ?: $uri;
-        $this->html5Parser = $useHtml5Parser ? new HTML5(['disable_html_ns' => true]) : null;
+        $this->html5Parser = \PHP_VERSION_ID < 80400 && $useHtml5Parser ? new HTML5(['disable_html_ns' => true]) : null;
         $this->cachedNamespaces = new \ArrayObject();
 
         $this->add($node);
@@ -1081,22 +1085,40 @@ class Crawler implements \Countable, \IteratorAggregate
 
     private function parseXhtml(string $htmlContent, string $charset = 'UTF-8'): \DOMDocument
     {
-        if ('UTF-8' === $charset && preg_match('//u', $htmlContent)) {
-            $htmlContent = '<?xml encoding="UTF-8">'.$htmlContent;
-        } else {
-            $htmlContent = $this->convertToHtmlEntities($htmlContent, $charset);
+        if (\PHP_VERSION_ID < 80400 || !$this->useHtml5Parser) {
+            if ('UTF-8' === $charset && preg_match('//u', $htmlContent)) {
+                $htmlContent = '<?xml encoding="UTF-8">'.$htmlContent;
+            } else {
+                $htmlContent = $this->convertToHtmlEntities($htmlContent, $charset);
+            }
+
+            $internalErrors = libxml_use_internal_errors(true);
+
+            $dom = new \DOMDocument('1.0', $charset);
+            $dom->validateOnParse = true;
+
+            if ('' !== trim($htmlContent)) {
+                @$dom->loadHTML($htmlContent);
+            }
+
+            libxml_use_internal_errors($internalErrors);
+
+            return $dom;
         }
 
-        $internalErrors = libxml_use_internal_errors(true);
+        $document = @\Dom\HTMLDocument::createFromString($htmlContent, \Dom\HTML_NO_DEFAULT_NS, $charset);
+        $htmlContent = $document->saveXml();
+        $charset = $document->inputEncoding;
 
         $dom = new \DOMDocument('1.0', $charset);
-        $dom->validateOnParse = true;
+        $dom->loadXML($htmlContent);
 
-        if ('' !== trim($htmlContent)) {
-            @$dom->loadHTML($htmlContent);
+        // Register id attributes as ID attributes for getElementById to work
+        foreach ((new \DOMXPath($dom))->query('//*[@id]') as $element) {
+            if ($element instanceof \DOMElement) {
+                $element->setIdAttribute('id', true);
+            }
         }
-
-        libxml_use_internal_errors($internalErrors);
 
         return $dom;
     }
@@ -1216,7 +1238,7 @@ class Crawler implements \Countable, \IteratorAggregate
             return false;
         }
 
-        if (false === ($pos = stripos($content, '<!doctype html>'))) {
+        if (false === $pos = stripos($content, '<!doctype html>')) {
             return false;
         }
 
