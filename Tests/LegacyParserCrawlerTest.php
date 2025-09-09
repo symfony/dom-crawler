@@ -86,12 +86,12 @@ class LegacyParserCrawlerTest extends CrawlerTestCase
         libxml_use_internal_errors($internalErrors);
     }
 
-    #[RequiresPhp('8.4')]
+    #[RequiresPhp('>=8.4')]
     public function testAddHtml5()
     {
     }
 
-    #[RequiresPhp('8.4')]
+    #[RequiresPhp('>=8.4')]
     public function testHtml5ParserParseContentStartingWithValidHeading(string $content)
     {
     }
