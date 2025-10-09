@@ -29,7 +29,7 @@ class CrawlerTestCase extends TestCase
 
     protected function createCrawler($node = null, ?string $uri = null, ?string $baseHref = null)
     {
-        return new Crawler($node, $uri, $baseHref, \PHP_VERSION_ID >= 80400);
+        return new Crawler($node, $uri, $baseHref);
     }
 
     public function testConstructor()
