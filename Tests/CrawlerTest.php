@@ -14,6 +14,7 @@ namespace Symfony\Component\DomCrawler\Tests;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\IgnoreDeprecations;
+use PHPUnit\Framework\Attributes\RequiresPhp;
 use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 use PHPUnit\Framework\Error\Notice;
 use PHPUnit\Framework\TestCase;
@@ -22,7 +23,8 @@ use Symfony\Component\DomCrawler\Form;
 use Symfony\Component\DomCrawler\Image;
 use Symfony\Component\DomCrawler\Link;
 
-class CrawlerTestCase extends TestCase
+#[RequiresPhp('>=8.4')]
+class CrawlerTest extends TestCase
 {
     public static function getDoctype(): string
     {
@@ -1376,6 +1378,21 @@ class CrawlerTestCase extends TestCase
         yield 'Several comments' => ['<!--c--> <!--cc-->'.$html];
         yield 'Whitespaces' => ['    '.$html];
         yield 'All together' => [$BOM.'  <!--c-->'.$html];
+    }
+
+    public function testAlpineJs()
+    {
+        $crawler = $this->createCrawler();
+        $crawler->addHtmlContent(file_get_contents(__DIR__.'/Fixtures/alpine-js.html'));
+
+        if (\PHP_VERSION_ID < 80400) {
+            $this->assertCount(1, $crawler->filterXPath('//button'));
+            $this->assertCount(3, $crawler->filterXPath('//div'));
+        } else {
+            // Alpine JS is well known for not having valid HTML tags...
+            $this->assertCount(0, $crawler->filterXPath('//button'));
+            $this->assertCount(0, $crawler->filterXPath('//div'));
+        }
     }
 
     protected function createTestCrawler($uri = null)

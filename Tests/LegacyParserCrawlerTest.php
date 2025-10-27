@@ -14,7 +14,7 @@ namespace Symfony\Component\DomCrawler\Tests;
 use PHPUnit\Framework\Attributes\RequiresPhp;
 
 #[RequiresPhp('<8.4')]
-class LegacyParserCrawlerTest extends CrawlerTestCase
+class LegacyParserCrawlerTest extends CrawlerTest
 {
     public static function getDoctype(): string
     {

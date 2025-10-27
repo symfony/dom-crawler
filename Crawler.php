@@ -1112,8 +1112,12 @@ class Crawler implements \Countable, \IteratorAggregate
         $htmlContent = $document->saveXml();
         $charset = $document->inputEncoding;
 
+        $internalErrors = libxml_use_internal_errors(true);
+
         $dom = new \DOMDocument('1.0', $charset);
         $dom->loadXML($htmlContent);
+
+        libxml_use_internal_errors($internalErrors);
 
         // Register id attributes as ID attributes for getElementById to work
         foreach ((new \DOMXPath($dom))->query('//*[@id]') as $element) {

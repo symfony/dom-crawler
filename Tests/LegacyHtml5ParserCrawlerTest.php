@@ -16,7 +16,7 @@ use PHPUnit\Framework\Attributes\RequiresPhp;
 use Symfony\Component\DomCrawler\Crawler;
 
 #[RequiresPhp('<8.4')]
-class LegacyHtml5ParserCrawlerTest extends CrawlerTestCase
+class LegacyHtml5ParserCrawlerTest extends CrawlerTest
 {
     public function testHtml()
     {
