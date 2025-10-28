@@ -20,7 +20,8 @@ use Symfony\Component\DomCrawler\Form;
 use Symfony\Component\DomCrawler\Image;
 use Symfony\Component\DomCrawler\Link;
 
-class CrawlerTestCase extends TestCase
+#[RequiresPhp('>=8.4')]
+class CrawlerTest extends TestCase
 {
     public static function getDoctype(): string
     {
@@ -1358,6 +1359,15 @@ class CrawlerTestCase extends TestCase
         yield 'Several comments' => ['<!--c--> <!--cc-->'.$html];
         yield 'Whitespaces' => ['    '.$html];
         yield 'All together' => [$BOM.'  <!--c-->'.$html];
+    }
+
+    public function testAlpineJs()
+    {
+        $crawler = $this->createCrawler();
+        $crawler->addHtmlContent(file_get_contents(__DIR__.'/Fixtures/alpine-js.html'));
+
+        $this->assertCount(1, $crawler->filterXPath('//button'));
+        $this->assertCount(3, $crawler->filterXPath('//div'));
     }
 
     protected function createTestCrawler($uri = null)

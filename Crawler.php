@@ -1047,19 +1047,14 @@ class Crawler implements \Countable, \IteratorAggregate
 
     private function parseHtml5(string $htmlContent, string $charset = 'UTF-8'): \DOMDocument
     {
-        $document = @\Dom\HTMLDocument::createFromString($htmlContent, \Dom\HTML_NO_DEFAULT_NS, $charset);
-        $htmlContent = $document->saveXml();
-        $charset = $document->inputEncoding;
+        $internalErrors = libxml_use_internal_errors(true);
 
-        $dom = new \DOMDocument('1.0', $charset);
-        $dom->loadXML($htmlContent);
+        $document = \Dom\HTMLDocument::createFromString($htmlContent, \Dom\HTML_NO_DEFAULT_NS, $charset);
 
-        // Register id attributes as ID attributes for getElementById to work
-        foreach ((new \DOMXPath($dom))->query('//*[@id]') as $element) {
-            if ($element instanceof \DOMElement) {
-                $element->setIdAttribute('id', true);
-            }
-        }
+        libxml_use_internal_errors($internalErrors);
+
+        $dom = new \DOMDocument('1.0', $document->inputEncoding);
+        $this->copyFromHtml5ToDom($document->documentElement, $dom);
 
         return $dom;
     }
@@ -1157,6 +1152,49 @@ class Crawler implements \Countable, \IteratorAggregate
         }
 
         return new CssSelectorConverter($this->isHtml);
+    }
+
+    private function copyFromHtml5ToDom(\Dom\Node $source, \DOMDocument $target): void
+    {
+        /** @var list<array{0: iterable<\Dom\Node>, 1: \DOMNode}> $stack */
+        $stack = [[[$source], $target]];
+
+        while ($stack) {
+            [$children, $parent] = array_pop($stack);
+
+            foreach ($children as $source) {
+                if ($source instanceof \Dom\CharacterData) {
+                    $parent->appendChild(match (true) {
+                        $source instanceof \Dom\Text => $target->createTextNode($source->data),
+                        $source instanceof \Dom\Comment => $target->createComment($source->data),
+                        $source instanceof \Dom\CDATASection => $target->createCDATASection($source->data),
+                        $source instanceof \Dom\ProcessingInstruction => $target->createProcessingInstruction($source->target, $source->data),
+                    });
+                    continue;
+                }
+
+                if (!$source instanceof \Dom\Element) {
+                    continue;
+                }
+
+                $element = $target->createElement($source->tagName);
+
+                foreach ($source->attributes as $attr) {
+                    try {
+                        $element->setAttribute($attr->name, $attr->value);
+                    } catch (\DOMException) {
+                        // ignore invalid attribute name
+                    }
+                    if ('id' === $attr->name) {
+                        $element->setIdAttribute('id', true);
+                    }
+                }
+
+                $parent->appendChild($element);
+
+                $stack[] = [$source->childNodes, $element];
+            }
+        }
     }
 
     private function normalizeWhitespace(string $string): string
