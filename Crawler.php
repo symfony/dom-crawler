@@ -1251,7 +1251,7 @@ class Crawler implements \Countable, \IteratorAggregate
 
     private function copyFromHtml5ToDom(\Dom\Node $source, \DOMDocument $target): void
     {
-        /** @var list<array{0: iterable<\Dom\Node>, 1: ?\DOMNode}> $stack */
+        /** @var list<array{0: iterable<\Dom\Node>, 1: \DOMNode}> $stack */
         $stack = [[[$source], $target]];
 
         while ($stack) {
