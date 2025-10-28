@@ -20,7 +20,6 @@ use Symfony\Component\DomCrawler\Form;
 use Symfony\Component\DomCrawler\Image;
 use Symfony\Component\DomCrawler\Link;
 
-#[RequiresPhp('>=8.4')]
 class CrawlerTest extends TestCase
 {
     public static function getDoctype(): string
