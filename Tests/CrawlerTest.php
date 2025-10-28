@@ -1385,14 +1385,8 @@ class CrawlerTest extends TestCase
         $crawler = $this->createCrawler();
         $crawler->addHtmlContent(file_get_contents(__DIR__.'/Fixtures/alpine-js.html'));
 
-        if (\PHP_VERSION_ID < 80400) {
-            $this->assertCount(1, $crawler->filterXPath('//button'));
-            $this->assertCount(3, $crawler->filterXPath('//div'));
-        } else {
-            // Alpine JS is well known for not having valid HTML tags...
-            $this->assertCount(0, $crawler->filterXPath('//button'));
-            $this->assertCount(0, $crawler->filterXPath('//div'));
-        }
+        $this->assertCount(1, $crawler->filterXPath('//button'));
+        $this->assertCount(3, $crawler->filterXPath('//div'));
     }
 
     protected function createTestCrawler($uri = null)
