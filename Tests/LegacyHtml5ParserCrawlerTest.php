@@ -72,6 +72,13 @@ class LegacyHtml5ParserCrawlerTest extends CrawlerTest
         yield 'Text between comments' => ['<!--c--> test <!--cc-->'.$html];
     }
 
+    public function testHtml5MalformedContent()
+    {
+        $crawler = $this->createCrawler();
+        $crawler->addHtmlContent('<script&>');
+        self::assertEquals('<head><script></script></head>', $crawler->html());
+    }
+
     protected function createCrawler($node = null, ?string $uri = null, ?string $baseHref = null)
     {
         return new Crawler($node, $uri, $baseHref, true);

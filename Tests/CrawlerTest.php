@@ -1380,6 +1380,13 @@ class CrawlerTest extends TestCase
         yield 'All together' => [$BOM.'  <!--c-->'.$html];
     }
 
+    public function testHtml5MalformedContent()
+    {
+        $crawler = $this->createCrawler();
+        $crawler->addHtmlContent('<script&>');
+        self::assertEquals('<head></head><body></body>', $crawler->html());
+    }
+
     public function testAlpineJs()
     {
         $crawler = $this->createCrawler();
