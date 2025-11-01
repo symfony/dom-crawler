@@ -1177,7 +1177,11 @@ class Crawler implements \Countable, \IteratorAggregate
                     continue;
                 }
 
-                $element = $target->createElement($source->tagName);
+                try {
+                    $element = $target->createElement($source->tagName);
+                } catch (\DOMException) {
+                    continue;
+                }
 
                 foreach ($source->attributes as $attr) {
                     try {
