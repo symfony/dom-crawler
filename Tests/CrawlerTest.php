@@ -1376,6 +1376,14 @@ class CrawlerTest extends TestCase
         $this->assertCount(3, $crawler->filterXPath('//div'));
     }
 
+    public function testInvalidCharset()
+    {
+        $email = "Content-Type: text/html; charset=foobar\n\n<!DOCTYPE html><html><body>One Two Three</body></html>";
+        $crawler = $this->createCrawler($email);
+        // Not really needed anymore, since the test would already have crashed with: ValueError: Dom\HTMLDocument::createFromString(): Argument #3 ($overrideEncoding) must be a valid document encoding
+        $this->assertSame('Content-Type: text/html; charset=foobar One Two Three', $crawler->text());
+    }
+
     protected function createTestCrawler($uri = null)
     {
         $html = $this->getDoctype().'
