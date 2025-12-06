@@ -1335,7 +1335,7 @@ class CrawlerTest extends TestCase
     #[Group('legacy')]
     public function testHtml5ParserNotSameAsNativeParserForSpecificHtml()
     {
-        // Html who create a bug specific to the DOM extension (see https://github.com/symfony/symfony/issues/28596)
+        // HTML that creates a bug specific to the DOM extension (see https://github.com/symfony/symfony/issues/28596)
         $html = '<!DOCTYPE html><html><body><h1><p>Foo</p></h1></body></html>';
 
         $html5Crawler = new Crawler(null, null, null, true);
@@ -1394,6 +1394,14 @@ class CrawlerTest extends TestCase
 
         $this->assertCount(1, $crawler->filterXPath('//button'));
         $this->assertCount(3, $crawler->filterXPath('//div'));
+    }
+
+    public function testInvalidCharset()
+    {
+        $email = "Content-Type: text/html; charset=foobar\n\n<!DOCTYPE html><html><body>One Two Three</body></html>";
+        $crawler = $this->createCrawler($email);
+        // Not really needed anymore, since the test would already have crashed with: ValueError: Dom\HTMLDocument::createFromString(): Argument #3 ($overrideEncoding) must be a valid document encoding
+        $this->assertSame('Content-Type: text/html; charset=foobar One Two Three', $crawler->text());
     }
 
     protected function createTestCrawler($uri = null)
