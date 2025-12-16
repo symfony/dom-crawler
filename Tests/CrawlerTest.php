@@ -266,7 +266,7 @@ class CrawlerTest extends TestCase
 
     public function testEach()
     {
-        $data = $this->createTestCrawler()->filterXPath('//ul[1]/li')->each(fn ($node, $i) => $i.'-'.$node->text());
+        $data = $this->createTestCrawler()->filterXPath('//ul[1]/li')->each(static fn ($node, $i) => $i.'-'.$node->text());
 
         $this->assertEquals(['0-One', '1-Two', '2-Three'], $data, '->each() executes an anonymous function on each node of the list');
     }
@@ -292,7 +292,7 @@ class CrawlerTest extends TestCase
     public function testReduce()
     {
         $crawler = $this->createTestCrawler()->filterXPath('//ul[1]/li');
-        $nodes = $crawler->reduce(fn ($node, $i) => 1 !== $i);
+        $nodes = $crawler->reduce(static fn ($node, $i) => 1 !== $i);
         $this->assertNotSame($nodes, $crawler, '->reduce() returns a new instance of a crawler');
         $this->assertInstanceOf(Crawler::class, $nodes, '->reduce() returns a new instance of a crawler');
 
