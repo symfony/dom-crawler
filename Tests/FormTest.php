@@ -882,7 +882,7 @@ class FormTest extends TestCase
         ;
 
         $field
-            ->expects($this->any())
+            ->expects($this->atLeastOnce())
             ->method('getName')
             ->willReturn($name)
         ;
