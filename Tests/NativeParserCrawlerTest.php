@@ -33,8 +33,9 @@ class NativeParserCrawlerTest extends AbstractCrawlerTestCase
                 </body>
                 </body>
             </html>
-            EOF
-            , 'UTF-8');
+            EOF,
+            'UTF-8'
+        );
 
         $errors = libxml_get_errors();
         $this->assertCount(1, $errors);
@@ -58,8 +59,9 @@ class NativeParserCrawlerTest extends AbstractCrawlerTestCase
                     <nav><a href="#"><a href="#"></nav>
                 </body>
             </html>
-            EOF
-            , 'UTF-8');
+            EOF,
+            'UTF-8'
+        );
 
         $this->assertGreaterThan(1, libxml_get_errors());
 
