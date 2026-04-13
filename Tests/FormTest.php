@@ -206,7 +206,7 @@ class FormTest extends TestCase
         $this->assertEquals(
             $values,
             array_map(
-                function ($field) {
+                static function ($field) {
                     $class = $field::class;
 
                     return [substr($class, strrpos($class, '\\') + 1), $field->getValue()];
