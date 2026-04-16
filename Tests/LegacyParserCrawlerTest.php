@@ -13,7 +13,7 @@ namespace Symfony\Component\DomCrawler\Tests;
 
 use PHPUnit\Framework\Attributes\RequiresPhp;
 
-#[RequiresPhp('<8.4')]
+#[RequiresPhp('<8.4.0')]
 class LegacyParserCrawlerTest extends CrawlerTest
 {
     public static function getDoctype(): string
@@ -86,12 +86,12 @@ class LegacyParserCrawlerTest extends CrawlerTest
         libxml_use_internal_errors($internalErrors);
     }
 
-    #[RequiresPhp('>=8.4')]
+    #[RequiresPhp('>=8.4.0')]
     public function testAddHtml5()
     {
     }
 
-    #[RequiresPhp('>=8.4')]
+    #[RequiresPhp('>=8.4.0')]
     public function testHtml5ParserParseContentStartingWithValidHeading(string $content)
     {
     }
