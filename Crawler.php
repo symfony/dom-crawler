@@ -240,7 +240,6 @@ class Crawler implements \Countable, \IteratorAggregate
         }
 
         $dom = new \DOMDocument('1.0', $charset);
-        $dom->validateOnParse = true;
 
         if ('' !== trim($content)) {
             @$dom->loadXML($content, $options);
