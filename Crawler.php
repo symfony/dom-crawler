@@ -193,7 +193,9 @@ class Crawler implements \Countable, \IteratorAggregate
      * and then, get the errors via libxml_get_errors(). Be
      * sure to clear errors with libxml_clear_errors() afterward.
      *
-     * @param int $options Bitwise OR of the libxml option constants
+     * @param int $options Bitwise OR of the libxml option constants;
+     *                     `LIBXML_NONET` is always added to the options to prevent
+     *                     network requests for external entities.
      *                     LIBXML_PARSEHUGE is dangerous, see
      *                     http://symfony.com/blog/security-release-symfony-2-0-17-released
      */
@@ -210,7 +212,7 @@ class Crawler implements \Countable, \IteratorAggregate
         $dom->validateOnParse = true;
 
         if ('' !== trim($content)) {
-            @$dom->loadXML($content, $options);
+            @$dom->loadXML($content, $options | \LIBXML_NONET);
         }
 
         libxml_use_internal_errors($internalErrors);
