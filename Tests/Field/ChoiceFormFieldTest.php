@@ -181,6 +181,22 @@ class ChoiceFormFieldTest extends FormFieldTestCase
         $this->assertTrue($field->isDisabled(), '->isDisabled() returns true for selects with a disabled attribute');
     }
 
+    public function testAddChoiceOnMultipleSelectKeepsExistingValues()
+    {
+        $node = $this->createSelectNode(['foo' => true, 'bar' => false], ['multiple' => 'multiple']);
+        $field = new ChoiceFormField($node);
+
+        $this->assertEquals(['foo'], $field->getValue());
+
+        $document = new \DOMDocument();
+        $newOption = $document->createElement('option', 'baz');
+        $newOption->setAttribute('value', 'baz');
+        $newOption->setAttribute('selected', 'selected');
+        $field->addChoice($newOption);
+
+        $this->assertEquals(['foo', 'baz'], $field->getValue());
+    }
+
     public function testMultipleSelects()
     {
         $node = $this->createSelectNode(['foo' => false, 'bar' => false], ['multiple' => 'multiple']);
