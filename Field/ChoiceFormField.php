@@ -155,7 +155,11 @@ class ChoiceFormField extends FormField
         $this->options[] = $option;
 
         if ($node->hasAttribute('checked')) {
-            $this->value = $option['value'];
+            if ($this->multiple) {
+                $this->value[] = $option['value'];
+            } else {
+                $this->value = $option['value'];
+            }
         }
     }
 
