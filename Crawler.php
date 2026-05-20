@@ -207,7 +207,6 @@ class Crawler implements \Countable, \IteratorAggregate
         $internalErrors = libxml_use_internal_errors(true);
 
         $dom = new \DOMDocument('1.0', $charset);
-        $dom->validateOnParse = true;
 
         if ('' !== trim($content)) {
             @$dom->loadXML($content, $options);
