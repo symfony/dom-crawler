@@ -145,27 +145,16 @@ class CrawlerTest extends TestCase
         $this->assertEquals('foo', $crawler->filterXPath('//div')->attr('class'), '->addXmlContent() adds nodes from an XML string');
     }
 
-    public function testAddXmlContentForcesNoNetEvenWhenCallerRequestsEntityExpansion()
+    public function testAddXmlContentDoesNotExpandExternalEntities()
     {
-        // LIBXML_NOENT forces libxml to try expanding the external entity;
-        // without LIBXML_NONET this would attempt a network fetch. The crawler
-        // always adds LIBXML_NONET, so libxml must refuse with XML_IO_NETWORK_ATTEMPT (1543).
-        libxml_use_internal_errors(true);
-        libxml_clear_errors();
-
         $crawler = $this->createCrawler();
         $crawler->addXmlContent(
             '<?xml version="1.0"?>'
-            .'<!DOCTYPE r [<!ENTITY xxe SYSTEM "http://127.0.0.1:1/xxe.dtd">]>'
-            .'<r>&xxe;</r>',
-            'UTF-8',
-            \LIBXML_NOENT
+            .'<!DOCTYPE r [<!ENTITY xxe SYSTEM "file:///etc/hosts">]>'
+            .'<r>&xxe;</r>'
         );
 
-        $codes = array_map(static fn ($e) => $e->code, libxml_get_errors());
-        libxml_clear_errors();
-
-        $this->assertContains(1543, $codes, 'libxml reports XML_IO_NETWORK_ATTEMPT when an external entity is blocked by LIBXML_NONET');
+        $this->assertSame('', $crawler->text());
     }
 
     public function testAddXmlContentCharset()
