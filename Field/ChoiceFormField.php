@@ -144,7 +144,7 @@ class ChoiceFormField extends FormField
      * @throws \LogicException When choice provided is neither multiple, radio nor select,
      *                         or when the node tag does not match the field type
      */
-    final public function addChoice(\DOMElement $node): void
+    public function addChoice(\DOMElement $node): void
     {
         if (!$this->multiple && !\in_array($this->type, ['radio', 'select'], true)) {
             throw new \LogicException(\sprintf('Unable to add a choice for "%s" as it is neither multiple, a radio button nor a select field (type is "%s").', $this->name, $this->type));
